@@ -7,7 +7,6 @@ import {useState, useEffect} from "react";
 
 const App = () => {
     const [textToCopy, setTextToCopy] = useState();
-    const [finalText, setFinalText] = useState("");
     const [isCopied, setCopied] = useClipboard(textToCopy, {
         successDuration:1000
     });
@@ -22,10 +21,7 @@ const App = () => {
     }, [transcript]);
 
     useEffect(() => {
-    if (transcript && transcript.trim() !== "") {
-      setFinalText(transcript);
       setTextToCopy(transcript);
-    }
   }, [transcript]);
 
     if (!browserSupportsSpeechRecognition) {
@@ -43,7 +39,7 @@ const App = () => {
                 <div className="main-content" onClick={() =>  setTextToCopy(transcript)}>
                     {transcript || "Start speaking to see your words here..."}
                 </div>
-                <p className="final-text"></p>
+                <p className="finalText"></p>
 
                 <div className="btn-style">
 
@@ -52,9 +48,7 @@ const App = () => {
                     </button>
                     <button onClick={startListening}>Start Listening</button>
                     <button onClick={SpeechRecognition.stopListening}>Stop Listening</button>
-                    <button onClick={() => { resetTranscript(); setFinalText(""); }}>
-                      Clear
-        </button>  
+                    <button onClick={() =>  resetTranscript()}>Clear</button>  
 
                 </div>
 
