@@ -7,6 +7,7 @@ import {useState, useEffect} from "react";
 
 const App = () => {
     const [textToCopy, setTextToCopy] = useState();
+    const [finalText, setFinalText] = useState("");
     const [isCopied, setCopied] = useClipboard(textToCopy, {
         successDuration:1000
     });
@@ -42,6 +43,7 @@ const App = () => {
                 <div className="main-content" onClick={() =>  setTextToCopy(transcript)}>
                     {transcript || "Start speaking to see your words here..."}
                 </div>
+                <p className="final-text"></p>
 
                 <div className="btn-style">
 
