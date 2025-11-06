@@ -7,13 +7,13 @@ import {useState, useEffect} from "react";
 
 const App = () => {
     const [textToCopy, setTextToCopy] = useState();
+    const [isListening, setIsListening] = useState(false); 
     const [isCopied, setCopied] = useClipboard(textToCopy, {
         successDuration:1000
     });
 
     //subscribe to thapa technical for more awesome videos
 
-    const startListening = () => SpeechRecognition.startListening({ continuous: true, language: 'en-IN' });
     const { transcript, browserSupportsSpeechRecognition, resetTranscript  } = useSpeechRecognition();
 
     useEffect(() => {
@@ -21,8 +21,29 @@ const App = () => {
     }, [transcript]);
 
     useEffect(() => {
-      setTextToCopy(transcript);
-  }, [transcript]);
+    if (!isListening) return;
+
+    const silenceTimer = setTimeout(() => {
+      SpeechRecognition.stopListening();
+      setIsListening(false);
+    }, 5000); // 5 sec silence auto stop
+
+    return () => clearTimeout(silenceTimer);
+  }, [transcript, isListening]);
+
+  const startListening = () => {
+    setIsListening(true);
+    SpeechRecognition.startListening({
+      continuous: true,
+      language: 'en-IN'
+    });
+  };
+
+  // ✅ Stop listening handler
+  const stopListening = () => {
+    SpeechRecognition.stopListening();
+    setIsListening(false);
+  };
 
     if (!browserSupportsSpeechRecognition) {
         return <p>Your browser does not support speech recognition.</p>;
@@ -39,17 +60,22 @@ const App = () => {
                 <div className="main-content" onClick={() =>  setTextToCopy(transcript)}>
                     {transcript || "Start speaking to see your words here..."}
                 </div>
-                <p className="finalText"></p>
+                
 
                 <div className="btn-style">
 
                     <button onClick={setCopied}>
                         {isCopied ? 'Copied!' : 'Copy to clipboard'}
                     </button>
+                     {!isListening && (
                     <button onClick={startListening}>Start Listening</button>
-                    <button onClick={SpeechRecognition.stopListening}>Stop Listening</button>
-                    <button onClick={() =>  resetTranscript()}>Clear</button>  
-
+                    )}
+                     {isListening && (
+                    <button onClick={stopListening}>Stop Listening</button>
+                    )}
+                    <button onClick={() => { resetTranscript(); setIsListening(false); }}>
+          Clear
+        </button>
                 </div>
 
             </div>
